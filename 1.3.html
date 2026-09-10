@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Diárias</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:20px;font-family:Arial,sans-serif;background:#f2f2f2;display:flex;justify-content:center;align-items:flex-start;min-height:100vh}.container{width:100%;max-width:460px;background:white;padding:28px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,.12)}h1{margin-top:0;margin-bottom:28px;text-align:center;font-size:28px}label{display:block;margin-bottom:8px;font-weight:bold;font-size:15px}.grupo{margin-bottom:22px}.linha-data{display:flex;gap:8px;align-items:center}.linha-data input[type="text"]{flex:1;min-width:0;padding:13px 14px;font-size:18px;border:2px solid #ccc;border-radius:9px;outline:none}.linha-data input[type="text"]:focus{border-color:#333}.botao-calendario{width:50px;min-width:50px;height:50px;border:none;border-radius:9px;background:#e8e8e8;font-size:23px;cursor:pointer}.botao-calendario:hover{background:#d8d8d8}.datepicker{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.extracao-automatica{margin-bottom:22px}.extracao-automatica textarea{width:100%;min-height:82px;padding:13px 14px;font-size:15px;border:2px solid #ccc;border-radius:9px;outline:none;resize:vertical;font-family:Arial,sans-serif}.extracao-automatica textarea:focus{border-color:#333}.extracao-automatica textarea::placeholder{color:#888;opacity:.55}.preencher{width:100%;margin-top:9px;padding:12px;border:none;border-radius:9px;background:#e3e3e3;color:#222;font-size:15px;font-weight:bold;cursor:pointer}.preencher:hover{background:#d4d4d4}.botoes-principais{display:flex;gap:10px;margin-top:8px}button{font-family:inherit}.calcular,.limpar{flex:1;padding:14px;border:none;border-radius:9px;font-size:16px;font-weight:bold;cursor:pointer}.calcular{background:#222;color:white}.calcular:hover{background:#000}.limpar{background:#ddd;color:#222}.limpar:hover{background:#ccc}.mensagem{min-height:22px;margin-top:16px;text-align:center;font-size:14px;color:#b00020}.resultado{margin-top:18px;padding:22px;border-radius:12px;background:#f5f5f5;text-align:center}.numero-resultado{display:block;font-size:48px;line-height:1;font-weight:bold}.texto-resultado{display:block;margin-top:6px;font-size:21px}.copiar{width:100%;margin-top:14px;padding:12px;border:none;border-radius:9px;background:#e3e3e3;color:#222;font-weight:bold;cursor:pointer}.copiar:hover{background:#d4d4d4}.mensagem-copia{min-height:20px;margin-top:8px;text-align:center;font-size:13px;color:#333}.modal-hora{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);justify-content:center;align-items:center;z-index:9999;padding:20px}.modal-conteudo{width:100%;max-width:300px;background:white;padding:25px;border-radius:15px;box-shadow:0 10px 35px rgba(0,0,0,.25);text-align:center}.modal-conteudo h2{margin-top:0;margin-bottom:20px;font-size:22px}#horaManual{width:100%;padding:14px;font-size:24px;text-align:center;border:2px solid #ccc;border-radius:8px;outline:none}#horaManual:focus{border-color:#333}.preview-hora{margin-top:15px;font-size:32px;font-weight:bold}.modal-botoes{display:flex;gap:10px;margin-top:20px}.confirmar-hora,.cancelar-hora{flex:1;padding:12px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}.confirmar-hora{background:#222;color:white}.cancelar-hora{background:#ddd;color:#222}@media(max-width:500px){body{padding:12px}.container{padding:20px}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Calculadora de Diárias</h1>
+
+<div class="grupo">
+<label for="retirada">Retirada</label>
+<div class="linha-data">
+<input type="text" id="retirada" maxlength="12" placeholder="DDMMAAAAHHMM" inputmode="numeric" onfocus="campoEntrou(this)" onblur="campoSaiu(this)">
+<button type="button" class="botao-calendario" onclick="abrirCalendario('retirada')" title="Selecionar data">📅</button>
+<input type="date" id="datepicker-retirada" class="datepicker" onchange="dataSelecionada('retirada')">
+</div>
+</div>
+
+<div class="grupo">
+<label for="devolucao">Devolução</label>
+<div class="linha-data">
+<input type="text" id="devolucao" maxlength="12" placeholder="DDMMAAAAHHMM" inputmode="numeric" onfocus="campoEntrou(this)" onblur="campoSaiu(this)">
+<button type="button" class="botao-calendario" onclick="abrirCalendario('devolucao')" title="Selecionar data">📅</button>
+<input type="date" id="datepicker-devolucao" class="datepicker" onchange="dataSelecionada('devolucao')">
+</div>
+</div>
+
+<div class="extracao-automatica">
+<label for="extracaoAutomatica">Extração automática:</label>
+<textarea id="extracaoAutomatica" placeholder="REFERENTE AO PERÍODO DE dd/mm/aaaa A dd/mm/aaaa"></textarea>
+<button type="button" class="preencher" onclick="preencherAutomaticamente()">Preencher automáticamente</button>
+</div>
+
+<div class="botoes-principais">
+<button type="button" class="calcular" onclick="calcularDiarias()">CALCULAR</button>
+<button type="button" class="limpar" onclick="limpar()">LIMPAR</button>
+</div>
+
+<div id="mensagem" class="mensagem"></div>
+
+<div class="resultado">
+<span id="numeroResultado" class="numero-resultado">0</span>
+<span id="textoResultado" class="texto-resultado">diárias</span>
+</div>
+
+<button type="button" class="copiar" onclick="copiarResultado()">COPIAR RESULTADO</button>
+<div id="mensagemCopia" class="mensagem-copia"></div>
+</div>
+
+<div id="modalHora" class="modal-hora">
+<div class="modal-conteudo">
+<h2>Informe a hora</h2>
+<input type="text" id="horaManual" maxlength="4" inputmode="numeric" placeholder="HHMM" oninput="atualizarPreviewHora()" onkeydown="if(event.key==='Enter') confirmarHora()">
+<div class="preview-hora" id="previewHora">--:--</div>
+<div class="modal-botoes">
+<button type="button" class="confirmar-hora" onclick="confirmarHora()">CONFIRMAR</button>
+<button type="button" class="cancelar-hora" onclick="cancelarHora()">CANCELAR</button>
+</div>
+</div>
+</div>
+
+<script>
+let tipoSelecionado=null;
+let dataTemporaria=null;
+
+function campoEntrou(campo){
+    let numeros=campo.value.replace(/\D/g,"");
+    if(numeros.length===10){
+        numeros=numeros.slice(0,4)+"20"+numeros.slice(4);
+    }
+    if(numeros.length===12){
+        campo.value=numeros;
+    }
+}
+
+function campoSaiu(campo){
+    let numeros=campo.value.replace(/\D/g,"");
+    if(numeros.length===10){
+        numeros=numeros.slice(0,4)+"20"+numeros.slice(4);
+    }
+    if(numeros.length!==12)return;
+
+    const dia=numeros.slice(0,2);
+    const mes=numeros.slice(2,4);
+    const ano=numeros.slice(4,8);
+    const hora=numeros.slice(8,10);
+    const minuto=numeros.slice(10,12);
+
+    campo.value=dia+"/"+mes+"/"+ano+" "+hora+":"+minuto;
+}
+
+function abrirCalendario(tipo){
+    const calendario=document.getElementById("datepicker-"+tipo);
+    if(calendario.showPicker){
+        calendario.showPicker();
+    }else{
+        calendario.click();
+    }
+}
+
+function dataSelecionada(tipo){
+    const calendario=document.getElementById("datepicker-"+tipo);
+    if(!calendario.value)return;
+
+    tipoSelecionado=tipo;
+    dataTemporaria=calendario.value;
+
+    const modal=document.getElementById("modalHora");
+    const campoHora=document.getElementById("horaManual");
+    const preview=document.getElementById("previewHora");
+
+    campoHora.value="";
+    preview.textContent="--:--";
+    modal.style.display="flex";
+
+    setTimeout(function(){campoHora.focus();},50);
+}
+
+function atualizarPreviewHora(){
+    const campo=document.getElementById("horaManual");
+    const preview=document.getElementById("previewHora");
+
+    let numeros=campo.value.replace(/\D/g,"").slice(0,4);
+    campo.value=numeros;
+
+    if(numeros.length===0){
+        preview.textContent="--:--";
+        return;
+    }
+
+    if(numeros.length<=2){
+        preview.textContent=numeros.padEnd(2,"-")+":--";
+        return;
+    }
+
+    const hora=numeros.slice(0,2);
+    const minuto=numeros.slice(2,4);
+    preview.textContent=hora+":"+minuto.padEnd(2,"-");
+}
+
+function confirmarHora(){
+    const campoHora=document.getElementById("horaManual");
+    const numeros=campoHora.value.replace(/\D/g,"");
+
+    if(numeros.length!==4){
+        alert("Informe o horário com 4 números. Exemplo: 0830.");
+        campoHora.focus();
+        return;
+    }
+
+    const hora=Number(numeros.slice(0,2));
+    const minuto=Number(numeros.slice(2,4));
+
+    if(hora<0||hora>23||minuto<0||minuto>59){
+        alert("Informe um horário válido.");
+        campoHora.focus();
+        return;
+    }
+
+    if(!tipoSelecionado||!dataTemporaria){
+        fecharModalHora();
+        return;
+    }
+
+    const partes=dataTemporaria.split("-");
+    const ano=partes[0];
+    const mes=partes[1];
+    const dia=partes[2];
+
+    document.getElementById(tipoSelecionado).value=
+        dia+"/"+mes+"/"+ano+" "+
+        String(hora).padStart(2,"0")+":"+
+        String(minuto).padStart(2,"0");
+
+    fecharModalHora();
+}
+
+function cancelarHora(){
+    fecharModalHora();
+}
+
+function fecharModalHora(){
+    document.getElementById("modalHora").style.display="none";
+
+    if(tipoSelecionado){
+        const calendario=document.getElementById("datepicker-"+tipoSelecionado);
+        if(calendario)calendario.value="";
+    }
+
+    tipoSelecionado=null;
+    dataTemporaria=null;
+    document.getElementById("horaManual").value="";
+    document.getElementById("previewHora").textContent="--:--";
+}
+
+function preencherAutomaticamente(){
+    const campoExtracao=document.getElementById("extracaoAutomatica");
+    const mensagem=document.getElementById("mensagem");
+    const texto=campoExtracao.value.trim();
+
+    mensagem.textContent="";
+    mensagem.style.color="#b00020";
+
+    if(!texto){
+        mensagem.textContent="Cole o texto do período (obs. do faturamento) na Extração automática.";
+        return;
+    }
+
+    const datas=texto.match(/\b\d{2}\/\d{2}\/\d{4}\b/g);
+
+    if(!datas || datas.length<2){
+        mensagem.textContent="Não foi possível encontrar duas datas no formato DD/MM/AAAA.";
+        return;
+    }
+
+    const validarData=function(dataTexto){
+        const partes=dataTexto.split("/");
+        const dia=Number(partes[0]);
+        const mes=Number(partes[1]);
+        const ano=Number(partes[2]);
+        const data=new Date(ano,mes-1,dia);
+
+        return (
+            data.getFullYear()===ano &&
+            data.getMonth()===mes-1 &&
+            data.getDate()===dia
+        );
+    };
+
+    if(!validarData(datas[0]) || !validarData(datas[1])){
+        mensagem.textContent="Foi encontrada uma data inválida no texto.";
+        return;
+    }
+
+    document.getElementById("retirada").value=datas[0]+" 08:44";
+    document.getElementById("devolucao").value=datas[1]+" 12:44";
+
+    mensagem.style.color="#333";
+    mensagem.textContent="Período preenchido automaticamente.";
+}
+
+function converterData(valor){
+    let numeros=valor.replace(/\D/g,"");
+
+    if(numeros.length===10){
+        numeros=numeros.slice(0,4)+"20"+numeros.slice(4);
+    }
+
+    if(numeros.length!==12)return null;
+
+    const dia=Number(numeros.slice(0,2));
+    const mes=Number(numeros.slice(2,4));
+    const ano=Number(numeros.slice(4,8));
+    const hora=Number(numeros.slice(8,10));
+    const minuto=Number(numeros.slice(10,12));
+
+    const data=new Date(ano,mes-1,dia,hora,minuto,0,0);
+
+    if(
+        data.getFullYear()!==ano||
+        data.getMonth()!==mes-1||
+        data.getDate()!==dia||
+        data.getHours()!==hora||
+        data.getMinutes()!==minuto
+    ){
+        return null;
+    }
+
+    return data;
+}
+
+function calcularDiarias(){
+    const campoRetirada=document.getElementById("retirada");
+    const campoDevolucao=document.getElementById("devolucao");
+    const mensagem=document.getElementById("mensagem");
+
+    mensagem.textContent="";
+    mensagem.style.color="#b00020";
+
+    const retirada=converterData(campoRetirada.value);
+    const devolucao=converterData(campoDevolucao.value);
+
+    if(!retirada){
+        mensagem.textContent="Informe uma data de retirada válida.";
+        return;
+    }
+
+    if(!devolucao){
+        mensagem.textContent="Informe uma data de devolução válida.";
+        return;
+    }
+
+    if(devolucao<retirada){
+        mensagem.textContent="A devolução não pode ser anterior à retirada.";
+        return;
+    }
+
+    function dataOperacional(data){
+        const resultado=new Date(
+            data.getFullYear(),
+            data.getMonth(),
+            data.getDate()
+        );
+
+        if(data.getHours()<12){
+            resultado.setDate(resultado.getDate()-1);
+        }
+
+        return resultado;
+    }
+
+    const retiradaOperacional=dataOperacional(retirada);
+    const devolucaoOperacional=dataOperacional(devolucao);
+
+    const diferenca=Math.round(
+        (devolucaoOperacional-retiradaOperacional)/
+        (1000*60*60*24)
+    );
+
+    const diarias=Math.max(1,diferenca);
+
+    document.getElementById("numeroResultado").textContent=diarias;
+    document.getElementById("textoResultado").textContent=
+        diarias===1?"diária":"diárias";
+}
+
+function copiarResultado(){
+    const numero=document.getElementById("numeroResultado").textContent;
+    const texto=document.getElementById("textoResultado").textContent;
+    const resultado=numero+" "+texto;
+
+    navigator.clipboard.writeText(resultado).then(function(){
+        const mensagem=document.getElementById("mensagemCopia");
+        mensagem.textContent="Resultado copiado.";
+        setTimeout(function(){mensagem.textContent="";},1800);
+    }).catch(function(){
+        document.getElementById("mensagemCopia").textContent=
+            "Não foi possível copiar automaticamente.";
+    });
+}
+
+function limpar(){
+    document.getElementById("retirada").value="";
+    document.getElementById("devolucao").value="";
+    document.getElementById("extracaoAutomatica").value="";
+    document.getElementById("numeroResultado").textContent="0";
+    document.getElementById("textoResultado").textContent="diárias";
+    document.getElementById("mensagem").textContent="";
+    document.getElementById("mensagemCopia").textContent="";
+    document.getElementById("datepicker-retirada").value="";
+    document.getElementById("datepicker-devolucao").value="";
+    fecharModalHora();
+    document.getElementById("retirada").focus();
+}
+
+document.getElementById("modalHora").addEventListener("click",function(event){
+    if(event.target===document.getElementById("modalHora")){
+        fecharModalHora();
+    }
+});
+
+document.addEventListener("keydown",function(event){
+    if(
+        event.key==="Escape" &&
+        document.getElementById("modalHora").style.display==="flex"
+    ){
+        fecharModalHora();
+    }
+});
+</script>
+</body>
+</html>

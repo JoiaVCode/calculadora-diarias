@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CPE Tecnologia | Calculadora de Diárias</title>
+<link rel="icon" href="https://cpetecnologia.com.br/favicon.ico">
 <style>
 :root{
     --cpe-yellow:#f4c300;
@@ -98,7 +99,7 @@ body::before{
     align-items:center;
     gap:8px;
     margin-bottom:8px;
-    font-size:16px;
+    font-size:11px;
     line-height:1;
     font-weight:800;
     letter-spacing:.13em;
@@ -522,13 +523,177 @@ label{
     .controles{grid-template-columns:1fr}
     .botoes-principais{height:46px}
 }
+
+/* =========================================================
+   RESPONSIVIDADE 1.6
+   Desktop mantém o layout original. Abaixo de 700px,
+   a interface passa a ser otimizada para toque e telas estreitas.
+   ========================================================= */
+@media(max-width:900px){
+    html{min-width:0;overflow-x:hidden}
+    body{overflow-x:hidden}
+    .barra-lateral{
+        position:fixed;
+        width:100%;
+        height:64px;
+        padding:8px 16px;
+        flex-direction:row;
+        justify-content:center;
+        align-items:center;
+        border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .logo-lateral{
+        width:auto;
+        max-width:170px;
+        height:44px;
+        max-height:44px;
+    }
+    .logo-fallback{width:42px;height:42px}
+    .container{
+        width:calc(100% - 32px);
+        max-width:1180px;
+        min-width:0;
+        margin:88px auto 24px;
+    }
+    .cabecalho{
+        align-items:flex-start;
+        flex-direction:column;
+        gap:12px;
+        margin-bottom:18px;
+    }
+    .versao{align-self:flex-start}
+    .workspace{
+        grid-template-columns:1fr;
+        gap:14px;
+    }
+    .painel-resultado{
+        position:relative;
+        top:auto;
+    }
+}
+
+@media(max-width:700px){
+    .container{width:calc(100% - 24px);margin-top:82px}
+    .cabecalho{gap:10px}
+    .eyebrow{font-size:10px;margin-bottom:7px}
+    h1{font-size:32px;letter-spacing:-.03em}
+    .subtitulo{font-size:13px;line-height:1.4}
+    .versao{padding:7px 10px;font-size:10px}
+
+    .card{border-radius:8px}
+    .painel-form{padding:20px 16px 18px}
+    .card-cabecalho{
+        padding-bottom:15px;
+        margin-bottom:18px;
+    }
+    .card-titulo{font-size:14px}
+    .card-descricao{font-size:11px;line-height:1.4}
+
+    .datas-grid{
+        grid-template-columns:1fr;
+        gap:15px;
+        margin-bottom:18px;
+    }
+    label{font-size:11px;margin-bottom:6px}
+    .linha-data{grid-template-columns:minmax(0,1fr) 44px;gap:7px}
+    .linha-data input[type="text"]{
+        height:46px;
+        padding:0 12px;
+        font-size:16px;
+    }
+    .botao-calendario{width:44px;height:46px;font-size:18px}
+
+    .extracao-automatica{padding-top:17px}
+    .extracao-automatica textarea{
+        min-height:105px;
+        font-size:14px;
+        padding:12px;
+    }
+    .extracao-acoes{
+        flex-direction:column;
+        align-items:stretch;
+        gap:9px;
+    }
+    .ajuda-extracao{font-size:10px;line-height:1.4}
+    .preencher{
+        width:100%;
+        min-width:0;
+        height:42px;
+    }
+
+    .controles{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+        margin-top:18px;
+        padding-top:17px;
+    }
+    .tolerancia-container{
+        width:100%;
+        min-width:0;
+        padding:10px 11px;
+    }
+    .tolerancia-texto{font-size:12px}
+    .tolerancia-subtexto{font-size:10px}
+    .botoes-principais{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+        height:auto;
+    }
+    .calcular,.limpar{
+        width:100%;
+        min-width:0;
+        min-height:48px;
+        height:48px;
+    }
+    .mensagem{font-size:11px;line-height:1.4}
+
+    .resultado-topo{padding:17px 16px 14px}
+    .resultado{padding:38px 16px 32px}
+    .numero-resultado{font-size:64px}
+    .texto-resultado{font-size:14px}
+    .resultado-acoes{padding:14px 16px 16px}
+    .copiar{height:43px}
+
+    .rodape-app{
+        padding:8px 0 4px;
+        text-align:center;
+        font-size:9px;
+        line-height:1.55;
+    }
+
+    .modal-hora{padding:16px}
+    .modal-conteudo{
+        width:100%;
+        max-width:360px;
+        border-radius:8px;
+    }
+    .modal-corpo{padding:17px}
+    #horaManual{height:48px;font-size:18px}
+    .modal-botoes{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+    }
+    .confirmar-hora,.cancelar-hora{height:43px}
+}
+
+@media(max-width:420px){
+    .container{width:calc(100% - 20px)}
+    h1{font-size:29px}
+    .painel-form{padding:18px 13px 16px}
+    .botoes-principais{grid-template-columns:1fr}
+    .calcular,.limpar{min-height:46px;height:46px}
+    .numero-resultado{font-size:58px}
+    .resultado{padding-left:12px;padding-right:12px}
+}
 </style>
 </head>
 <body>
 <aside class="barra-lateral" aria-label="Identidade CPE">
     <img
         class="logo-lateral"
-        src="https://cpetecnologia.com.br/cdn/shop/files/logo_cpe_color_b342c623-fa6d-440a-8f06-060460dff956.png?v=1782178305&width=240"
+        src="https://c5gwmsmjx1.execute-api.us-east-1.amazonaws.com/prod/empresa/logo/36612/Logomarca_CPE.jpg"
         alt="CPE Tecnologia"
         onerror="this.style.display='none';document.getElementById('logoFallback').style.display='block';"
     >
@@ -558,7 +723,7 @@ label{
             <h1>Calculadora de Diárias</h1>
             <p class="subtitulo">Cálculo rápido do período de locação e devolução.</p>
         </div>
-        <div class="versao">Versão 1.5.2</div>
+        <div class="versao">Versão 1.6</div>
     </header>
 
     <main class="workspace">
@@ -639,10 +804,10 @@ label{
     </main>
 
     <footer class="rodape-app">
-    <div>Calculadora de apoio ao faturamento de locações</div>
-    <div>© 2026 Eduardo Joia Aliberti. Todos os direitos reservados.</div>
-    <div>Projeto em desenvolvimento, com auxílio do GPT-5.6 Luna.</div>
-</footer>
+        <div>Calculadora de apoio ao faturamento de locações</div>
+        <div>© 2026 Eduardo Joia Aliberti. Todos os direitos reservados.</div>
+        <div>Projeto em desenvolvimento, com auxílio do GPT-5.6 Luna.</div>
+    </footer>
 </div>
 
 <div id="modalHora" class="modal-hora">

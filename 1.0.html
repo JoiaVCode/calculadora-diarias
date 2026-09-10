@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calculadora de Diárias</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            font-family: Arial, sans-serif;
+
+            background: #f2f2f2;
+
+        }
+
+
+        .container {
+
+            width: 420px;
+
+            max-width: 90%;
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 15px;
+
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+
+        }
+
+
+        h1 {
+
+            text-align: center;
+
+            margin-top: 0;
+
+            margin-bottom: 30px;
+
+            font-size: 26px;
+
+        }
+
+
+        .campo {
+
+            margin-bottom: 20px;
+
+        }
+
+
+        label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-weight: bold;
+
+        }
+
+
+        /*
+        ========================================================
+        LINHA DO CAMPO + CALENDÁRIO
+        ========================================================
+        */
+
+        .linha-data {
+
+            display: flex;
+
+            gap: 8px;
+
+        }
+
+
+        /*
+        ========================================================
+        CAMPO DE TEXTO
+        ========================================================
+        */
+
+        input[type="text"] {
+
+            flex: 1;
+
+            min-width: 0;
+
+            padding: 14px;
+
+            font-size: 18px;
+
+            border: 2px solid #ccc;
+
+            border-radius: 8px;
+
+            outline: none;
+
+        }
+
+
+        input[type="text"]:focus {
+
+            border-color: #333;
+
+        }
+
+
+        /*
+        ========================================================
+        BOTÃO DO CALENDÁRIO
+        ========================================================
+        */
+
+        .botao-calendario {
+
+            width: 52px;
+
+            flex-shrink: 0;
+
+            padding: 0;
+
+            border: 2px solid #ccc;
+
+            border-radius: 8px;
+
+            background: #f5f5f5;
+
+            font-size: 23px;
+
+            cursor: pointer;
+
+        }
+
+
+        .botao-calendario:hover {
+
+            background: #e8e8e8;
+
+        }
+
+
+        /*
+        ========================================================
+        CAMPO INVISÍVEL DO DATEPICKER
+        ========================================================
+        */
+
+        .datepicker {
+
+            position: absolute;
+
+            width: 1px;
+
+            height: 1px;
+
+            opacity: 0;
+
+            pointer-events: none;
+
+        }
+
+
+        /*
+        ========================================================
+        BOTÕES
+        ========================================================
+        */
+
+        .botoes {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 10px;
+
+        }
+
+
+        button {
+
+            flex: 1;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        .calcular {
+
+            background: #222;
+
+            color: white;
+
+        }
+
+
+        .limpar {
+
+            background: #ddd;
+
+            color: #222;
+
+        }
+
+
+        button:hover {
+
+            opacity: 0.85;
+
+        }
+
+
+        /*
+        ========================================================
+        RESULTADO
+        ========================================================
+        */
+
+        .resultado {
+
+            margin-top: 30px;
+
+            padding: 20px;
+
+            text-align: center;
+
+            border-radius: 10px;
+
+            background: #f0f0f0;
+
+        }
+
+
+        .numero {
+
+            display: block;
+
+            font-size: 48px;
+
+            font-weight: bold;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .texto {
+
+            font-size: 18px;
+
+        }
+
+
+        /*
+        ========================================================
+        BOTÃO COPIAR
+        ========================================================
+        */
+
+        .copiar {
+
+            width: 100%;
+
+            margin-top: 15px;
+
+            background: #ddd;
+
+            color: #222;
+
+        }
+
+
+        /*
+        ========================================================
+        MENSAGEM
+        ========================================================
+        */
+
+        .mensagem {
+
+            margin-top: 15px;
+
+            text-align: center;
+
+            font-size: 14px;
+
+            color: #b00020;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <h1>Calculadora de Diárias</h1>
+
+
+    <!-- =====================================================
+         RETIRADA
+         ===================================================== -->
+
+    <div class="campo">
+
+        <label for="retirada">
+
+            Retirada
+
+        </label>
+
+
+        <div class="linha-data">
+
+            <input
+                type="text"
+                id="retirada"
+                maxlength="16"
+                placeholder="DDMMAAAAHHMM"
+                inputmode="numeric"
+                oninput="formatarData(this)"
+            >
+
+
+            <button
+                type="button"
+                class="botao-calendario"
+                onclick="abrirCalendario('retirada')"
+                title="Selecionar data e hora"
+            >
+
+                📅
+
+            </button>
+
+
+            <input
+                type="datetime-local"
+                id="datepicker-retirada"
+                class="datepicker"
+                onchange="dataSelecionada('retirada')"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DEVOLUÇÃO
+         ===================================================== -->
+
+    <div class="campo">
+
+        <label for="devolucao">
+
+            Devolução
+
+        </label>
+
+
+        <div class="linha-data">
+
+            <input
+                type="text"
+                id="devolucao"
+                maxlength="16"
+                placeholder="DDMMAAAAHHMM"
+                inputmode="numeric"
+                oninput="formatarData(this)"
+            >
+
+
+            <button
+                type="button"
+                class="botao-calendario"
+                onclick="abrirCalendario('devolucao')"
+                title="Selecionar data e hora"
+            >
+
+                📅
+
+            </button>
+
+
+            <input
+                type="datetime-local"
+                id="datepicker-devolucao"
+                class="datepicker"
+                onchange="dataSelecionada('devolucao')"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BOTÕES
+         ===================================================== -->
+
+    <div class="botoes">
+
+
+        <button
+            class="calcular"
+            onclick="calcularDiarias()"
+        >
+
+            CALCULAR
+
+        </button>
+
+
+        <button
+            class="limpar"
+            onclick="limpar()"
+        >
+
+            LIMPAR
+
+        </button>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         RESULTADO
+         ===================================================== -->
+
+    <div class="resultado">
+
+
+        <span
+            class="numero"
+            id="numeroResultado"
+        >
+
+            0
+
+        </span>
+
+
+        <span
+            class="texto"
+            id="textoResultado"
+        >
+
+            diárias
+
+        </span>
+
+
+        <button
+            class="copiar"
+            onclick="copiarResultado()"
+        >
+
+            COPIAR RESULTADO
+
+        </button>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         MENSAGEM
+         ===================================================== -->
+
+    <div
+        class="mensagem"
+        id="mensagem"
+    ></div>
+
+
+</div>
+
+
+<script>
+
+
+// ============================================================
+// FORMATAÇÃO DA DATA DIGITADA MANUALMENTE
+//
+// Entrada:
+//
+// 121220120800
+//
+// Resultado:
+//
+// 12/12/2012 08:00
+// ============================================================
+
+function formatarData(campo) {
+
+
+    let valor =
+        campo.value.replace(/\D/g, "");
+
+
+    // Máximo de 12 números
+    //
+    // DD MM AAAA HH MM
+
+    valor =
+        valor.substring(0, 12);
+
+
+    let resultado = "";
+
+
+    // DIA
+
+    if (valor.length >= 1) {
+
+        resultado +=
+            valor.substring(0, 2);
+
+    }
+
+
+    // MÊS
+
+    if (valor.length >= 3) {
+
+        resultado += "/";
+
+        resultado +=
+            valor.substring(2, 4);
+
+    }
+
+
+    // ANO
+
+    if (valor.length >= 5) {
+
+        resultado += "/";
+
+        resultado +=
+            valor.substring(4, 8);
+
+    }
+
+
+    // HORA
+
+    if (valor.length >= 9) {
+
+        resultado += " ";
+
+        resultado +=
+            valor.substring(8, 10);
+
+    }
+
+
+    // MINUTO
+
+    if (valor.length >= 11) {
+
+        resultado += ":";
+
+        resultado +=
+            valor.substring(10, 12);
+
+    }
+
+
+    campo.value = resultado;
+
+}
+
+
+
+// ============================================================
+// ABRIR CALENDÁRIO
+// ============================================================
+
+function abrirCalendario(tipo) {
+
+
+    const calendario =
+        document.getElementById(
+            "datepicker-" + tipo
+        );
+
+
+    // Alguns navegadores permitem abrir o seletor
+    // diretamente usando showPicker()
+
+    if (calendario.showPicker) {
+
+        calendario.showPicker();
+
+    }
+
+    else {
+
+        calendario.click();
+
+    }
+
+}
+
+
+
+// ============================================================
+// QUANDO O USUÁRIO ESCOLHE UMA DATA NO CALENDÁRIO
+// ============================================================
+
+function dataSelecionada(tipo) {
+
+
+    const calendario =
+        document.getElementById(
+            "datepicker-" + tipo
+        );
+
+
+    const campo =
+        document.getElementById(
+            tipo
+        );
+
+
+    if (!calendario.value) {
+
+        return;
+
+    }
+
+
+    // O datetime-local retorna:
+
+    // 2012-12-12T08:00
+
+
+    const partes =
+        calendario.value.split("T");
+
+
+    const data =
+        partes[0].split("-");
+
+
+    const hora =
+        partes[1].split(":");
+
+
+    const ano =
+        data[0];
+
+
+    const mes =
+        data[1];
+
+
+    const dia =
+        data[2];
+
+
+    const horas =
+        hora[0];
+
+
+    const minutos =
+        hora[1];
+
+
+    campo.value =
+        dia +
+        "/" +
+        mes +
+        "/" +
+        ano +
+        " " +
+        horas +
+        ":" +
+        minutos;
+
+}
+
+
+
+// ============================================================
+// CONVERTER DATA
+//
+// Transforma:
+//
+// 12/12/2012 08:00
+//
+// em um objeto Date.
+// ============================================================
+
+function converterData(valor) {
+
+
+    const partes = valor.match(
+        /^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/
+    );
+
+
+    if (!partes) {
+
+        return null;
+
+    }
+
+
+    const dia =
+        Number(partes[1]);
+
+
+    const mes =
+        Number(partes[2]) - 1;
+
+
+    const ano =
+        Number(partes[3]);
+
+
+    const hora =
+        Number(partes[4]);
+
+
+    const minuto =
+        Number(partes[5]);
+
+
+    const data =
+        new Date(
+            ano,
+            mes,
+            dia,
+            hora,
+            minuto
+        );
+
+
+    // ========================================================
+    // VALIDAÇÃO
+    // ========================================================
+
+    if (
+
+        data.getFullYear() !== ano ||
+
+        data.getMonth() !== mes ||
+
+        data.getDate() !== dia ||
+
+        data.getHours() !== hora ||
+
+        data.getMinutes() !== minuto
+
+    ) {
+
+        return null;
+
+    }
+
+
+    return data;
+
+}
+
+
+
+// ============================================================
+// CALCULAR DIÁRIAS
+//
+// REGRA:
+//
+// O meio-dia é a virada da diária.
+//
+// Antes das 12:00:
+//
+// pertence à diária do dia anterior.
+//
+// 12:00 ou depois:
+//
+// pertence à diária daquele dia.
+//
+// Exemplos:
+//
+// 12/12 13:00 → 13/12 09:00 = 1
+//
+// 12/12 08:00 → 13/12 09:00 = 1
+//
+// 12/12 08:00 → 13/12 12:01 = 2
+//
+// 12/12 08:00 → 17/12 08:33 = 5
+//
+// 12/12 08:00 → 17/12 12:01 = 6
+// ============================================================
+
+function calcularDiarias() {
+
+
+    const campoRetirada =
+        document.getElementById(
+            "retirada"
+        );
+
+
+    const campoDevolucao =
+        document.getElementById(
+            "devolucao"
+        );
+
+
+    const mensagem =
+        document.getElementById(
+            "mensagem"
+        );
+
+
+    mensagem.textContent = "";
+
+    mensagem.style.color =
+        "#b00020";
+
+
+    // ========================================================
+    // CONVERTE AS DATAS
+    // ========================================================
+
+    const retirada =
+        converterData(
+            campoRetirada.value
+        );
+
+
+    const devolucao =
+        converterData(
+            campoDevolucao.value
+        );
+
+
+    // ========================================================
+    // VALIDAÇÕES
+    // ========================================================
+
+    if (!retirada) {
+
+        mensagem.textContent =
+            "Informe uma data de retirada válida.";
+
+        return;
+
+    }
+
+
+    if (!devolucao) {
+
+        mensagem.textContent =
+            "Informe uma data de devolução válida.";
+
+        return;
+
+    }
+
+
+    if (devolucao < retirada) {
+
+        mensagem.textContent =
+            "A devolução não pode ser anterior à retirada.";
+
+        return;
+
+    }
+
+
+    // ========================================================
+    // TRANSFORMA A DATA EM "DATA OPERACIONAL"
+    //
+    // Se for antes das 12h:
+    //
+    // 13/12 09:00
+    //
+    // passa a pertencer ao dia operacional 12/12.
+    //
+    // Se for 12h ou depois:
+    //
+    // 13/12 13:00
+    //
+    // continua sendo 13/12.
+    // ========================================================
+
+    function dataOperacional(data) {
+
+
+        const resultado =
+            new Date(
+                data.getFullYear(),
+                data.getMonth(),
+                data.getDate()
+            );
+
+
+        if (data.getHours() < 12) {
+
+            resultado.setDate(
+                resultado.getDate() - 1
+            );
+
+        }
+
+
+        return resultado;
+
+    }
+
+
+    // ========================================================
+    // CONVERTE AS DUAS DATAS
+    // ========================================================
+
+    const retiradaOperacional =
+        dataOperacional(
+            retirada
+        );
+
+
+    const devolucaoOperacional =
+        dataOperacional(
+            devolucao
+        );
+
+
+    // ========================================================
+    // DIFERENÇA ENTRE AS DATAS OPERACIONAIS
+    // ========================================================
+
+    const diferenca =
+        Math.round(
+
+            (
+                devolucaoOperacional -
+                retiradaOperacional
+            )
+
+            /
+
+            (1000 * 60 * 60 * 24)
+
+        );
+
+
+    // ========================================================
+    // MÍNIMO DE 1 DIÁRIA
+    // ========================================================
+
+    const diarias =
+        Math.max(
+            1,
+            diferenca
+        );
+
+
+    // ========================================================
+    // EXIBE RESULTADO
+    // ========================================================
+
+    document.getElementById(
+        "numeroResultado"
+    ).textContent =
+        diarias;
+
+
+    document.getElementById(
+        "textoResultado"
+    ).textContent =
+
+        diarias === 1
+            ? "diária"
+            : "diárias";
+
+}
+
+
+
+// ============================================================
+// COPIAR RESULTADO
+// ============================================================
+
+function copiarResultado() {
+
+
+    const resultado =
+        document.getElementById(
+            "numeroResultado"
+        ).textContent;
+
+
+    if (resultado === "0") {
+
+        return;
+
+    }
+
+
+    navigator.clipboard.writeText(
+        resultado
+    );
+
+
+    const mensagem =
+        document.getElementById(
+            "mensagem"
+        );
+
+
+    mensagem.style.color =
+        "#008000";
+
+
+    mensagem.textContent =
+        "Resultado copiado!";
+
+
+    setTimeout(
+
+        function() {
+
+            mensagem.textContent = "";
+
+        },
+
+        2000
+
+    );
+
+}
+
+
+
+// ============================================================
+// LIMPAR
+// ============================================================
+
+function limpar() {
+
+
+    document.getElementById(
+        "retirada"
+    ).value = "";
+
+
+    document.getElementById(
+        "devolucao"
+    ).value = "";
+
+
+    document.getElementById(
+        "datepicker-retirada"
+    ).value = "";
+
+
+    document.getElementById(
+        "datepicker-devolucao"
+    ).value = "";
+
+
+    document.getElementById(
+        "numeroResultado"
+    ).textContent = "0";
+
+
+    document.getElementById(
+        "textoResultado"
+    ).textContent =
+        "diárias";
+
+
+    document.getElementById(
+        "mensagem"
+    ).textContent = "";
+
+}
+
+</script>
+
+
+</body>
+
+</html>

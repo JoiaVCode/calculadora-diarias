@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPE Tecnologia | Calculadora de Diárias</title>
+<style>
+:root{
+    --cpe-yellow:#f4c300;
+    --cpe-yellow-strong:#e5b700;
+    --cpe-yellow-soft:#fff7cc;
+    --graphite:#303033;
+    --graphite-2:#414145;
+    --text:#303033;
+    --muted:#76767d;
+    --line:#dedee3;
+    --surface:#ffffff;
+    --surface-2:#f6f6f7;
+    --page:#ececef;
+    --danger:#b42318;
+    --success:#2f6b46;
+    --shadow:0 10px 30px rgba(28,28,31,.08);
+}
+
+*{box-sizing:border-box}
+html{min-width:900px;background:var(--page)}
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--text);
+    background:
+        linear-gradient(90deg,var(--graphite) 0 78px,transparent 78px),
+        var(--page);
+}
+button,input,textarea{font:inherit}
+button{border:0}
+
+body::before{
+    content:"";
+    position:fixed;
+    top:0;left:0;
+    width:86px;height:5px;
+    background:var(--cpe-yellow);
+    z-index:3;
+}
+
+.barra-lateral{
+    position:fixed;
+    top:0;
+    left:0;
+    width:86px;
+    height:100vh;
+    background:var(--graphite);
+    z-index:2;
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    flex-direction:column;
+    padding-top:18px;
+}
+
+.logo-lateral{
+    width:64px;
+    height:auto;
+    max-height:110px;
+    object-fit:contain;
+    display:block;
+    opacity:1;
+    border-radius:2px;
+}
+
+.logo-fallback{
+    display:none;
+    width:58px;
+    height:58px;
+}
+
+.container{
+    width:calc(100% - 158px);
+    max-width:1180px;
+    min-width:820px;
+    margin:42px auto;
+    padding:0;
+    background:transparent;
+}
+
+.cabecalho{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    margin-bottom:22px;
+}
+.cabecalho-titulo{min-width:0}
+.eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+    font-size:16px;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+    color:#66666b;
+}
+.eyebrow::before{
+    content:"";
+    width:22px;height:3px;
+    border-radius:3px;
+    background:var(--cpe-yellow);
+}
+h1{
+    margin:0;
+    font-size:38px;
+    line-height:1.12;
+    letter-spacing:-.035em;
+    font-weight:700;
+    letter-spacing:-.025em;
+    color:#29292c;
+}
+.subtitulo{
+    margin:7px 0 0;
+    color:var(--muted);
+    font-size:14px;
+}
+.versao{
+    flex:0 0 auto;
+    padding:8px 11px;
+    border:1px solid #d5d5da;
+    border-radius:6px;
+    background:rgba(255,255,255,.55);
+    color:#6a6a70;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+}
+
+.workspace{
+    display:grid;
+    grid-template-columns:minmax(0,1.62fr) minmax(300px,.88fr);
+    gap:20px;
+    align-items:start;
+}
+.card{
+    background:var(--surface);
+    border:1px solid #dddddf;
+    border-radius:8px;
+    box-shadow:var(--shadow);
+}
+.painel-form{padding:26px 28px 28px}
+.painel-resultado{
+    padding:0;
+    overflow:hidden;
+    position:sticky;
+    top:28px;
+}
+.card-cabecalho{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    padding-bottom:18px;
+    margin-bottom:22px;
+    border-bottom:1px solid #e5e5e8;
+}
+.card-titulo{
+    margin:0;
+    font-size:15px;
+    font-weight:700;
+    color:#353539;
+}
+.card-descricao{
+    margin:4px 0 0;
+    font-size:12px;
+    color:#8a8a90;
+}
+
+.datas-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-bottom:20px;
+}
+.grupo{margin:0}
+label{
+    display:block;
+    margin-bottom:7px;
+    font-size:12px;
+    font-weight:700;
+    color:#56565c;
+}
+.linha-data{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 42px;
+    gap:7px;
+    align-items:center;
+}
+.linha-data input[type="text"],
+.extracao-automatica textarea,
+#horaManual{
+    width:100%;
+    border:1px solid #ccccd2;
+    border-radius:6px;
+    background:#fff;
+    color:#303035;
+    outline:none;
+    transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.linha-data input[type="text"]{
+    min-width:0;
+    height:42px;
+    padding:0 12px;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:.01em;
+}
+.linha-data input[type="text"]:focus,
+.extracao-automatica textarea:focus,
+#horaManual:focus{
+    border-color:#b19600;
+    box-shadow:0 0 0 3px rgba(244,195,0,.17);
+}
+.linha-data input[type="text"]::placeholder,
+.extracao-automatica textarea::placeholder{color:#aaaab0}
+.botao-calendario{
+    width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid #d0d0d5;
+    border-radius:6px;
+    background:#f5f5f6;
+    color:#4a4a4f;
+    font-size:18px;
+    cursor:pointer;
+    transition:.16s ease;
+}
+.botao-calendario:hover{
+    background:#ededf0;
+    border-color:#bdbdc3;
+    transform:translateY(-1px);
+}
+.datepicker{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+.extracao-automatica{
+    margin:0;
+    padding-top:20px;
+    border-top:1px solid #eeeeef;
+}
+.extracao-automatica textarea{
+    min-height:92px;
+    padding:11px 12px;
+    resize:vertical;
+    font-size:13px;
+    line-height:1.45;
+}
+.extracao-acoes{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-top:9px;
+}
+.ajuda-extracao{
+    color:#98989d;
+    font-size:11px;
+}
+.preencher{
+    flex:0 0 auto;
+    min-width:172px;
+    height:36px;
+    padding:0 14px;
+    border:1px solid #cfcfd4;
+    border-radius:6px;
+    background:#fff;
+    color:#45454a;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.16s ease;
+}
+.preencher:hover{background:#f5f5f6;border-color:#bcbcc2}
+
+.controles{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:14px;
+    align-items:stretch;
+    margin-top:22px;
+    padding-top:20px;
+    border-top:1px solid #eeeeef;
+}
+.tolerancia-container{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    min-width:240px;
+    margin:0;
+    padding:9px 11px;
+    border:1px solid #dedee2;
+    border-radius:6px;
+    background:#f8f8f9;
+}
+.tolerancia-info{display:flex;flex-direction:column;gap:2px}
+.tolerancia-texto{font-size:12px;font-weight:700;color:#47474c}
+.tolerancia-subtexto{font-size:10px;color:#929298}
+.switch{position:relative;display:inline-block;width:42px;height:22px;flex:0 0 auto;margin-left:15px}
+.switch input{opacity:0;width:0;height:0}
+.slider{
+    position:absolute;
+    cursor:pointer;
+    inset:0;
+    border:1px solid #bdbdc3;
+    background:#d4d4d8;
+    transition:.18s ease;
+    border-radius:22px;
+}
+.slider:before{
+    position:absolute;
+    content:"";
+    width:16px;height:16px;
+    left:2px;top:2px;
+    background:#fff;
+    border-radius:50%;
+    box-shadow:0 1px 3px rgba(0,0,0,.22);
+    transition:.18s ease;
+}
+.switch input:checked+.slider{background:var(--cpe-yellow);border-color:#d2a900}
+.switch input:checked+.slider:before{transform:translateX(20px)}
+.switch input:focus-visible+.slider{box-shadow:0 0 0 3px rgba(244,195,0,.22)}
+
+.botoes-principais{display:flex;gap:8px;margin:0}
+.calcular,.limpar{
+    height:100%;
+    min-height:52px;
+    padding:0 20px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.035em;
+    cursor:pointer;
+    transition:transform .14s ease,background .14s ease,border-color .14s ease;
+}
+.calcular{
+    min-width:142px;
+    background:var(--cpe-yellow);
+    color:#2d2a20;
+    box-shadow:inset 0 -1px 0 rgba(0,0,0,.08);
+}
+.calcular:hover{background:var(--cpe-yellow-strong);transform:translateY(-1px)}
+.limpar{
+    min-width:92px;
+    border:1px solid #d1d1d6;
+    background:#f5f5f6;
+    color:#58585d;
+}
+.limpar:hover{background:#ececef;border-color:#c2c2c8}
+
+.mensagem{
+    min-height:18px;
+    margin-top:13px;
+    text-align:left;
+    font-size:11px;
+    font-weight:600;
+    color:var(--danger);
+}
+
+.resultado-topo{
+    padding:20px 22px 16px;
+    border-bottom:1px solid #e6e6e8;
+    background:#fafafa;
+}
+.resultado-topo .card-titulo{font-size:13px}
+.resultado{
+    margin:0;
+    padding:42px 24px 36px;
+    background:#fff;
+    text-align:center;
+    position:relative;
+}
+.resultado::before{
+    content:"";
+    position:absolute;
+    left:50%;top:24px;
+    width:36px;height:3px;
+    border-radius:4px;
+    background:var(--cpe-yellow);
+    transform:translateX(-50%);
+}
+.numero-resultado{
+    display:block;
+    font-size:72px;
+    line-height:.95;
+    font-weight:700;
+    letter-spacing:-.055em;
+    color:#2d2d31;
+}
+.texto-resultado{
+    display:block;
+    margin-top:11px;
+    font-size:15px;
+    font-weight:600;
+    color:#77777d;
+}
+.resultado-acoes{
+    padding:17px 20px 19px;
+    border-top:1px solid #e9e9eb;
+    background:#f7f7f8;
+}
+.copiar{
+    width:100%;
+    height:39px;
+    border:1px solid #ccccd1;
+    border-radius:6px;
+    background:#fff;
+    color:#48484d;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.035em;
+    cursor:pointer;
+    transition:.15s ease;
+}
+.copiar:hover{background:#f0f0f2;border-color:#babac0}
+.mensagem-copia{
+    min-height:15px;
+    margin-top:7px;
+    text-align:center;
+    font-size:10px;
+    font-weight:600;
+    color:var(--success);
+}
+
+.rodape-app{
+    margin-top:18px;
+    padding:10px 2px 0;
+    text-align:right;
+    color:#99999f;
+    font-size:10px;
+    line-height:1.6;
+}
+.rodape-app strong{
+    color:#68686e;
+    font-weight:700;
+}
+
+.modal-hora{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(27,27,30,.55);
+    backdrop-filter:blur(2px);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    padding:20px;
+}
+.modal-conteudo{
+    width:360px;
+    padding:0;
+    overflow:hidden;
+    border:1px solid #d8d8dc;
+    border-radius:8px;
+    background:#fff;
+    box-shadow:0 18px 60px rgba(0,0,0,.2);
+    text-align:left;
+}
+.modal-conteudo h2{
+    margin:0;
+    padding:18px 20px;
+    border-bottom:1px solid #e5e5e7;
+    background:#f8f8f9;
+    font-size:15px;
+}
+.modal-corpo{padding:20px}
+#horaManual{
+    height:45px;
+    padding:0 12px;
+    font-size:18px;
+    text-align:center;
+    letter-spacing:.08em;
+}
+.preview-hora{
+    margin-top:13px;
+    padding:12px;
+    border-radius:6px;
+    background:var(--surface-2);
+    text-align:center;
+    font-size:25px;
+    font-weight:700;
+    color:#3d3d42;
+}
+.modal-botoes{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:18px;
+}
+.confirmar-hora,.cancelar-hora{
+    height:37px;
+    padding:0 16px;
+    border-radius:6px;
+    font-size:11px;
+    font-weight:800;
+    cursor:pointer;
+}
+.confirmar-hora{background:var(--cpe-yellow);color:#2d2a20}
+.confirmar-hora:hover{background:var(--cpe-yellow-strong)}
+.cancelar-hora{border:1px solid #d2d2d7;background:#f4f4f5;color:#55555a}
+.cancelar-hora:hover{background:#eaeaed}
+
+@media(max-width:1050px){
+    html{min-width:760px}
+    body{background:var(--page)}
+    body::before{width:100%}
+    .container{width:calc(100% - 40px);min-width:720px;margin:28px auto}
+    .workspace{grid-template-columns:minmax(0,1fr) 290px}
+    .painel-form{padding:22px}
+    .controles{grid-template-columns:1fr}
+    .botoes-principais{height:46px}
+}
+</style>
+</head>
+<body>
+<aside class="barra-lateral" aria-label="Identidade CPE">
+    <img
+        class="logo-lateral"
+        src="https://cpetecnologia.com.br/cdn/shop/files/logo_cpe_color_b342c623-fa6d-440a-8f06-060460dff956.png?v=1782178305&width=240"
+        alt="CPE Tecnologia"
+        onerror="this.style.display='none';document.getElementById('logoFallback').style.display='block';"
+    >
+    <svg id="logoFallback" class="logo-fallback" viewBox="0 0 100 100" aria-label="CPE Tecnologia" role="img">
+        <g fill="#f4c300">
+            <circle cx="50" cy="50" r="7"/>
+            <circle cx="50" cy="34" r="6"/>
+            <circle cx="50" cy="66" r="6"/>
+            <circle cx="34" cy="50" r="6"/>
+            <circle cx="66" cy="50" r="6"/>
+            <circle cx="39" cy="39" r="5"/>
+            <circle cx="61" cy="39" r="5"/>
+            <circle cx="39" cy="61" r="5"/>
+            <circle cx="61" cy="61" r="5"/>
+            <circle cx="50" cy="20" r="4"/>
+            <circle cx="50" cy="80" r="4"/>
+            <circle cx="20" cy="50" r="4"/>
+            <circle cx="80" cy="50" r="4"/>
+        </g>
+    </svg>
+</aside>
+
+<div class="container">
+    <header class="cabecalho">
+        <div class="cabecalho-titulo">
+            <div class="eyebrow">CPE Tecnologia</div>
+            <h1>Calculadora de Diárias</h1>
+            <p class="subtitulo">Cálculo rápido do período de locação e devolução.</p>
+        </div>
+        <div class="versao">Versão 1.5.2</div>
+    </header>
+
+    <main class="workspace">
+        <section class="card painel-form">
+            <div class="card-cabecalho">
+                <div>
+                    <h2 class="card-titulo">Período da locação</h2>
+                    <p class="card-descricao">Informe manualmente ou extraia as datas do texto do faturamento.</p>
+                </div>
+            </div>
+
+            <div class="datas-grid">
+                <div class="grupo">
+                    <label for="retirada">Retirada</label>
+                    <div class="linha-data">
+                        <input type="text" id="retirada" maxlength="12" placeholder="DDMMAAAAHHMM" inputmode="numeric" onfocus="campoEntrou(this)" onblur="campoSaiu(this)">
+                        <button type="button" class="botao-calendario" onclick="abrirCalendario('retirada')" title="Selecionar data">📅</button>
+                        <input type="date" id="datepicker-retirada" class="datepicker" onchange="dataSelecionada('retirada')">
+                    </div>
+                </div>
+
+                <div class="grupo">
+                    <label for="devolucao">Devolução</label>
+                    <div class="linha-data">
+                        <input type="text" id="devolucao" maxlength="12" placeholder="DDMMAAAAHHMM" inputmode="numeric" onfocus="campoEntrou(this)" onblur="campoSaiu(this)">
+                        <button type="button" class="botao-calendario" onclick="abrirCalendario('devolucao')" title="Selecionar data">📅</button>
+                        <input type="date" id="datepicker-devolucao" class="datepicker" onchange="dataSelecionada('devolucao')">
+                    </div>
+                </div>
+            </div>
+
+            <div class="extracao-automatica">
+                <label for="extracaoAutomatica">Extração automática</label>
+                <textarea id="extracaoAutomatica" placeholder="REFERENTE AO PERÍODO DE dd/mm/aaaa A dd/mm/aaaa"></textarea>
+                <div class="extracao-acoes">
+                    <span class="ajuda-extracao">Cole a observação do faturamento contendo as duas datas.</span>
+                    <button type="button" class="preencher" onclick="preencherAutomaticamente()">PREENCHER PERÍODO</button>
+                </div>
+            </div>
+
+            <div class="controles">
+                <div class="tolerancia-container">
+                    <div class="tolerancia-info">
+                        <span class="tolerancia-texto">Tolerância</span>
+                        <span class="tolerancia-subtexto">Ativa o limite de devolução até 12:30</span>
+                    </div>
+                    <label class="switch" title="Ligado: devolução considera tolerância até 12:30">
+                        <input type="checkbox" id="tolerancia">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="botoes-principais">
+                    <button type="button" class="calcular" onclick="calcularDiarias()">CALCULAR</button>
+                    <button type="button" class="limpar" onclick="limpar()">LIMPAR</button>
+                </div>
+            </div>
+
+            <div id="mensagem" class="mensagem"></div>
+        </section>
+
+        <aside class="card painel-resultado">
+            <div class="resultado-topo">
+                <h2 class="card-titulo">Resultado do cálculo</h2>
+                <p class="card-descricao">Quantidade de diárias para faturamento.</p>
+            </div>
+
+            <div class="resultado">
+                <span id="numeroResultado" class="numero-resultado">0</span>
+                <span id="textoResultado" class="texto-resultado">diárias</span>
+            </div>
+
+            <div class="resultado-acoes">
+                <button type="button" class="copiar" onclick="copiarResultado()">COPIAR RESULTADO</button>
+                <div id="mensagemCopia" class="mensagem-copia"></div>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="rodape-app">
+    <div>Calculadora de apoio ao faturamento de locações</div>
+    <div>© 2026 Eduardo Joia Aliberti. Todos os direitos reservados.</div>
+    <div>Projeto em desenvolvimento, com auxílio do GPT-5.6 Luna.</div>
+</footer>
+</div>
+
+<div id="modalHora" class="modal-hora">
+    <div class="modal-conteudo">
+        <h2>Informe a hora</h2>
+        <div class="modal-corpo">
+            <input type="text" id="horaManual" maxlength="4" inputmode="numeric" placeholder="HHMM" oninput="atualizarPreviewHora()" onkeydown="if(event.key==='Enter') confirmarHora()">
+            <div class="preview-hora" id="previewHora">--:--</div>
+            <div class="modal-botoes">
+                <button type="button" class="cancelar-hora" onclick="cancelarHora()">CANCELAR</button>
+                <button type="button" class="confirmar-hora" onclick="confirmarHora()">CONFIRMAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let tipoSelecionado=null;
+let dataTemporaria=null;
+
+function campoEntrou(campo){
+    let numeros=campo.value.replace(/\D/g,"");
+    if(numeros.length===10){
+        numeros=numeros.slice(0,4)+"20"+numeros.slice(4);
+    }
+    if(numeros.length===12){
+        campo.value=numeros;
+    }
+}
+
+function campoSaiu(campo){
+    let numeros=campo.value.replace(/\D/g,"");
+    if(numeros.length===10){
+        numeros=numeros.slice(0,4)+"20"+numeros.slice(4);
+    }
+    if(numeros.length!==12)return;
+
+    const dia=numeros.slice(0,2);
+    const mes=numeros.slice(2,4);
+    const ano=numeros.slice(4,8);
+    const hora=numeros.slice(8,10);
+    const minuto=numeros.slice(10,12);
+
+    campo.value=dia+"/"+mes+"/"+ano+" "+hora+":"+minuto;
+}
+
+function abrirCalendario(tipo){
+    const calendario=document.getElementById("datepicker-"+tipo);
+    if(calendario.showPicker){
+        calendario.showPicker();
+    }else{
+        calendario.click();
+    }
+}
+
+function dataSelecionada(tipo){
+    const calendario=document.getElementById("datepicker-"+tipo);
+    if(!calendario.value)return;
+
+    tipoSelecionado=tipo;
+    dataTemporaria=calendario.value;
+
+    const modal=document.getElementById("modalHora");
+    const campoHora=document.getElementById("horaManual");
+    const preview=document.getElementById("previewHora");
+
+    campoHora.value="";
+    preview.textContent="--:--";
+    modal.style.display="flex";
+
+    setTimeout(function(){campoHora.focus();},50);
+}
+
+function atualizarPreviewHora(){
+    const campo=document.getElementById("horaManual");
+    const preview=document.getElementById("previewHora");
+
+    let numeros=campo.value.replace(/\D/g,"").slice(0,4);
+    campo.value=numeros;
+
+    if(numeros.length===0){
+        preview.textContent="--:--";
+        return;
+    }
+
+    if(numeros.length<=2){
+        preview.textContent=numeros.padEnd(2,"-")+":--";
+        return;
+    }
+
+    const hora=numeros.slice(0,2);
+    const minuto=numeros.slice(2,4);
+    preview.textContent=hora+":"+minuto.padEnd(2,"-");
+}
+
+function confirmarHora(){
+    const campoHora=document.getElementById("horaManual");
+    const numeros=campoHora.value.replace(/\D/g,"");
+
+    if(numeros.length!==4){
+        alert("Informe o horário com 4 números. Exemplo: 0830.");
+        campoHora.focus();
+        return;
+    }
+
+    const hora=Number(numeros.slice(0,2));
+    const minuto=Number(numeros.slice(2,4));
+
+    if(hora<0||hora>23||minuto<0||minuto>59){
+        alert("Informe um horário válido.");
+        campoHora.focus();
+        return;
+    }
+
+    if(!tipoSelecionado||!dataTemporaria){
+        fecharModalHora();
+        return;
+    }
+
+    const partes=dataTemporaria.split("-");
+    const ano=partes[0];
+    const mes=partes[1];
+    const dia=partes[2];
+
+    document.getElementById(tipoSelecionado).value=
+        dia+"/"+mes+"/"+ano+" "+
+        String(hora).padStart(2,"0")+":"+
+        String(minuto).padStart(2,"0");
+
+    fecharModalHora();
+}
+
+function cancelarHora(){
+    fecharModalHora();
+}
+
+function fecharModalHora(){
+    document.getElementById("modalHora").style.display="none";
+
+    if(tipoSelecionado){
+        const calendario=document.getElementById("datepicker-"+tipoSelecionado);
+        if(calendario)calendario.value="";
+    }
+
+    tipoSelecionado=null;
+    dataTemporaria=null;
+    document.getElementById("horaManual").value="";
+    document.getElementById("previewHora").textContent="--:--";
+}
+
+function preencherAutomaticamente(){
+    const campoExtracao=document.getElementById("extracaoAutomatica");
+    const mensagem=document.getElementById("mensagem");
+    const texto=campoExtracao.value.trim();
+
+    mensagem.textContent="";
+    mensagem.style.color="#b00020";
+
+    if(!texto){
+        mensagem.textContent="Cole o texto do período (obs. do faturamento) na Extração automática.";
+        return;
+    }
+
+    const datas=texto.match(/\b\d{2}\/\d{2}\/\d{4}\b/g);
+
+    if(!datas || datas.length<2){
+        mensagem.textContent="Não foi possível encontrar duas datas no formato DD/MM/AAAA.";
+        return;
+    }
+
+    const validarData=function(dataTexto){
+        const partes=dataTexto.split("/");
+        const dia=Number(partes[0]);
+        const mes=Number(partes[1]);
+        const ano=Number(partes[2]);
+        const data=new Date(ano,mes-1,dia);
+
+        return (
+            data.getFullYear()===ano &&
+            data.getMonth()===mes-1 &&
+            data.getDate()===dia
+        );
+    };
+
+    if(!validarData(datas[0]) || !validarData(datas[1])){
+        mensagem.textContent="Foi encontrada uma data inválida no texto.";
+        return;
+    }
+
+    document.getElementById("retirada").value=datas[0]+" 08:44";
+    document.getElementById("devolucao").value=datas[1]+" 12:44";
+
+    mensagem.style.color="#333";
+    mensagem.textContent="Período preenchido automaticamente.";
+}
+
+function converterData(valor){
+    let numeros=valor.replace(/\D/g,"");
+
+    if(numeros.length===10){
+        numeros=numeros.slice(0,4)+"20"+numeros.slice(4);
+    }
+
+    if(numeros.length!==12)return null;
+
+    const dia=Number(numeros.slice(0,2));
+    const mes=Number(numeros.slice(2,4));
+    const ano=Number(numeros.slice(4,8));
+    const hora=Number(numeros.slice(8,10));
+    const minuto=Number(numeros.slice(10,12));
+
+    const data=new Date(ano,mes-1,dia,hora,minuto,0,0);
+
+    if(
+        data.getFullYear()!==ano||
+        data.getMonth()!==mes-1||
+        data.getDate()!==dia||
+        data.getHours()!==hora||
+        data.getMinutes()!==minuto
+    ){
+        return null;
+    }
+
+    return data;
+}
+
+function calcularDiarias(){
+    const campoRetirada=document.getElementById("retirada");
+    const campoDevolucao=document.getElementById("devolucao");
+    const mensagem=document.getElementById("mensagem");
+
+    mensagem.textContent="";
+    mensagem.style.color="#b00020";
+
+    const retirada=converterData(campoRetirada.value);
+    const devolucao=converterData(campoDevolucao.value);
+
+    if(!retirada){
+        mensagem.textContent="Informe uma data de retirada válida.";
+        return;
+    }
+
+    if(!devolucao){
+        mensagem.textContent="Informe uma data de devolução válida.";
+        return;
+    }
+
+    if(devolucao<retirada){
+        mensagem.textContent="A devolução não pode ser anterior à retirada.";
+        return;
+    }
+
+    const toleranciaAtiva=
+        document.getElementById("tolerancia").checked;
+
+    function dataOperacional(data, tipo){
+        const resultado=new Date(
+            data.getFullYear(),
+            data.getMonth(),
+            data.getDate()
+        );
+
+        let limiteMinutos=12*60;
+
+        if(tipo==="devolucao" && toleranciaAtiva){
+            limiteMinutos=(12*60)+30;
+        }
+
+        const horarioEmMinutos=
+            (data.getHours()*60)+data.getMinutes();
+
+        if(horarioEmMinutos<limiteMinutos){
+            resultado.setDate(resultado.getDate()-1);
+        }
+
+        return resultado;
+    }
+
+    const retiradaOperacional=
+        dataOperacional(retirada,"retirada");
+
+    const devolucaoOperacional=
+        dataOperacional(devolucao,"devolucao");
+
+    const diferenca=Math.round(
+        (devolucaoOperacional-retiradaOperacional)/
+        (1000*60*60*24)
+    );
+
+    const diarias=Math.max(1,diferenca);
+
+    document.getElementById("numeroResultado").textContent=diarias;
+    document.getElementById("textoResultado").textContent=
+        diarias===1?"diária":"diárias";
+}
+
+function copiarResultado(){
+    const numero=document.getElementById("numeroResultado").textContent;
+    const texto=document.getElementById("textoResultado").textContent;
+    const resultado=numero+" "+texto;
+
+    navigator.clipboard.writeText(resultado).then(function(){
+        const mensagem=document.getElementById("mensagemCopia");
+        mensagem.textContent="Resultado copiado.";
+        setTimeout(function(){mensagem.textContent="";},1800);
+    }).catch(function(){
+        document.getElementById("mensagemCopia").textContent=
+            "Não foi possível copiar automaticamente.";
+    });
+}
+
+function limpar(){
+    document.getElementById("retirada").value="";
+    document.getElementById("devolucao").value="";
+    document.getElementById("extracaoAutomatica").value="";
+    document.getElementById("tolerancia").checked=false;
+    document.getElementById("numeroResultado").textContent="0";
+    document.getElementById("textoResultado").textContent="diárias";
+    document.getElementById("mensagem").textContent="";
+    document.getElementById("mensagemCopia").textContent="";
+    document.getElementById("datepicker-retirada").value="";
+    document.getElementById("datepicker-devolucao").value="";
+    fecharModalHora();
+    document.getElementById("retirada").focus();
+}
+
+document.getElementById("modalHora").addEventListener("click",function(event){
+    if(event.target===document.getElementById("modalHora")){
+        fecharModalHora();
+    }
+});
+
+document.addEventListener("keydown",function(event){
+    if(
+        event.key==="Escape" &&
+        document.getElementById("modalHora").style.display==="flex"
+    ){
+        fecharModalHora();
+    }
+});
+</script>
+</body>
+</html>
